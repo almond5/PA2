@@ -1,1 +1,1 @@
-# PA2
+- To clone: `git clone 'https://github.com/almond5/PA2.git' .`
