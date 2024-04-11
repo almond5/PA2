@@ -80,6 +80,31 @@ void insertRecord(char *name, uint32_t salary) {
 
 void deleteRecord(char *name) {
     // Implement deletion logic with proper synchronization
+
+    // Computes the hash value of the key and obtains a writer lock.
+    uint32_t hashValue = hash(name);
+    rwlock_acquire_write(&lock);
+    hashRecord *prev = NULL;
+    hashRecord *curr = hashTable[hashValue % hashTableSize];
+
+    //  If the key is found, it removes the node from the list and frees the memory.  
+    // Otherwise, it does nothing. 
+    while (curr != NULL) {
+        if (strcmp(curr->name, name) == 0) {
+            if (prev == NULL) {
+                hashTable[hashValue % hashTableSize] = curr->next;
+            } else {
+                prev->next = curr->next;
+            }
+            free(curr);
+            break;
+        }
+        prev = curr;
+        curr = curr->next;
+    }
+
+    // Finally, it releases the write lock and returns.
+    rwlock_release_write(&lock);
 }
 
 void searchRecord(char *name) {
