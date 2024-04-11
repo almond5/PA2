@@ -109,6 +109,26 @@ void deleteRecord(char *name) {
 
 void searchRecord(char *name) {
     // Implement search logic with proper synchronization
+
+    // Computes the hash value of the key acquires a reader lock.
+    uint32_t hashValue = hash(name);
+    rwlock_acquire_read(&lock);
+    hashRecord *curr = hashTable[hashValue % hashTableSize];
+
+    // Searches the linked list for the key. If the key is found, it returns the value.
+    // Otherwise, it returns NULL.
+    // Finally, it releases the read lock and returns.
+    while (curr != NULL) {
+        if (strcmp(curr->name, name) == 0) {
+            printf("Record found: %s %d\n", curr->name, curr->salary);
+            rwlock_release_read(&lock);
+            return;
+        }
+        curr = curr->next;
+    }
+
+    // Print the record or "No Record Found" if the return is NULL.
+    printf("No Record Found\n");
 }
 
 void printRecords() {
