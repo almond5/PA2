@@ -50,6 +50,32 @@ void *processCommands(void *args) {
 // Other functions for hash table operations
 void insertRecord(char *name, uint32_t salary) {
     // Implement insertion logic with proper synchronization
+
+    //  First computes the hash value of the given name (the key)
+    uint32_t hashValue = hash(name);
+
+    //  Acquires the write lock that protects the list and searches the linked list for the hash. 
+    rwlock_acquire_write(&lock);    
+    hashRecord *newRecord = (hashRecord *)malloc(sizeof(hashRecord));
+    newRecord->hash = hashValue;
+    strcpy(newRecord->name, name);
+    newRecord->salary = salary;
+    newRecord->next = NULL;
+
+    // If the hash is found, it updates the value. 
+    // Otherwise, it creates a new node and inserts it in the list.
+    if (hashTable[hashValue % hashTableSize] == NULL) {
+        hashTable[hashValue % hashTableSize] = newRecord;
+    } else {
+        hashRecord *curr = hashTable[hashValue % hashTableSize];
+        while (curr->next != NULL) {
+            curr = curr->next;
+        }
+        curr->next = newRecord;
+    }
+
+    // Finally, it releases the write lock and returns.
+    rwlock_release_write(&lock);
 }
 
 void deleteRecord(char *name) {
