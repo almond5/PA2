@@ -48,11 +48,10 @@ uint32_t jenkins_one_at_a_time_hash(const uint8_t *key, size_t length)
 
 void insertRecord(char *name, uint32_t salary)
 {
+    uint32_t hashValue = jenkins_one_at_a_time_hash((const uint8_t *)name, strlen(name));
     rwlock_acquire_writelock(&lock);
     printf("WRITE LOCK ACQUIRED\n");
     numAcquisitions++;
-
-    uint32_t hashValue = jenkins_one_at_a_time_hash((const uint8_t *)name, strlen(name));
 
     if (hashTableSize == 0)
     {
@@ -98,12 +97,12 @@ void insertRecord(char *name, uint32_t salary)
 
 void deleteRecord(char *name)
 {
+    uint32_t hashValue = jenkins_one_at_a_time_hash(name, strlen(name));
+
     rwlock_acquire_writelock(&lock);
     printf("WRITE LOCK ACQUIRED\n");
     numAcquisitions++;
-
     // find the record to delete
-    uint32_t hashValue = jenkins_one_at_a_time_hash(name, strlen(name));
 
     hashRecord *curr = hashTable;
 
@@ -147,11 +146,11 @@ void deleteRecord(char *name)
 
 void searchRecord(char *name)
 {
+    uint32_t hashValue = jenkins_one_at_a_time_hash(name, strlen(name));
+
     rwlock_acquire_readlock(&lock);
     printf("READ LOCK ACQUIRED\n");
     numAcquisitions++;
-
-    uint32_t hashValue = jenkins_one_at_a_time_hash(name, strlen(name));
 
     hashRecord *curr = hashTable;
 
@@ -159,7 +158,7 @@ void searchRecord(char *name)
     {
         if (curr->hash == hashValue)
         {
-            fprintf(fp, "%d, %s, %d\n", curr->hash, curr->name, curr->salary);
+            printf("%d, %s, %d\n", curr->hash, curr->name, curr->salary);
             break;
         }
 
@@ -192,10 +191,12 @@ void printRecords()
 
 void printRecordsConsole()
 {
-    while (hashTable != NULL)
+    hashRecord *curr = hashTable;
+
+    while (curr != NULL)
     {
-        printf("%d, %s, %d\n", hashTable->hash, hashTable->name, hashTable->salary);
-        hashTable = hashTable->next;
+        printf("%d, %s, %d\n", curr->hash, curr->name, curr->salary);
+        curr = curr->next;
     }
 }
 
@@ -218,7 +219,7 @@ void *processCommands(void *args)
     }
     else if (strcmp(token, "search") == 0)
     {
-        printf("Search, %s\n", name);
+        printf("SEARCH, %s\n", name);
         searchRecord(name);
     }
     else if (strcmp(token, "print") == 0)
