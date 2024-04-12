@@ -1,1 +1,2 @@
 - To clone: `git clone 'https://github.com/almond5/PA2.git' .`
+- To run: `gcc chash.c hashdb.c rwlock.c -lpthread` 

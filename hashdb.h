@@ -14,7 +14,7 @@ typedef struct hash_struct {
 
 // Global variables and data structures
 extern pthread_rwlock_t lock;
-extern hashRecord** hashTable;
+extern hashRecord* hashTable;
 extern int hashTableSize;
 extern int numThreads;
 
