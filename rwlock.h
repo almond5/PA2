@@ -1,6 +1,6 @@
 #include <semaphore.h>
-#ifndef RWLOCKS_H
-#define RWLOCKS_H
+#ifndef RWLOCK_H
+#define RWLOCK_H
 
 typedef struct _rwlock_t {
     sem_t writelock;

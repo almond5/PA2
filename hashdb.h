@@ -20,11 +20,12 @@ extern int numThreads;
 
 // Function prototypes
 void readCommandsFromFile(char* filename);
-void* processCommands(void* args);
+void* processCommands(char* token);
 void insertRecord(char* name, uint32_t salary);
 void deleteRecord(char* name);
 void searchRecord(char* name);
 void printRecords();
 void resizeHashTable(int newSize);
+uint32_t jenkins_one_at_a_time_hash(char* key, size_t len);
 
 #endif /* CONCURRENT_HASH_TABLE_H */
