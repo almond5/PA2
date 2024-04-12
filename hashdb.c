@@ -89,11 +89,22 @@ void insertRecord(char *name, uint32_t salary)
 
 void deleteRecord(char *name)
 {
+    rwlock_acquire_readlock(&lock);
+    printf("READ LOCK ACQUIRED\n");
+    numAcquisitions++;
+
+    // find the record to delete
+    uint32_t hashValue = jenkins_one_at_a_time_hash(name, strlen(name));
+
+    rwlock_release_readlock(&lock);
+    printf("READ LOCK RELEASED\n");
+    numReleases++;
+
     rwlock_acquire_writelock(&lock);
     printf("WRITE LOCK ACQUIRED\n");
     numAcquisitions++;
 
-    uint32_t hashValue = jenkins_one_at_a_time_hash(name, strlen(name));
+    // delete the record    
 
     rwlock_release_writelock(&lock);
     printf("WRITE LOCK RELEASED\n");
