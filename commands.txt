@@ -9,4 +9,4 @@ insert,Carol Shaw,41000
 print,0,0
 search,Shigeru Miyamoto,0
 delete,Sid Meier,0
-print,0,0
+delete,Hideo Kojima,0

@@ -48,6 +48,7 @@ uint32_t jenkins_one_at_a_time_hash(const uint8_t *key, size_t length)
 
 void insertRecord(char *name, uint32_t salary)
 {
+    printf("INSERT, %s, %d\n", name, salary);
     uint32_t hashValue = jenkins_one_at_a_time_hash((const uint8_t *)name, strlen(name));
     rwlock_acquire_writelock(&lock);
     printf("WRITE LOCK ACQUIRED\n");
@@ -97,6 +98,7 @@ void insertRecord(char *name, uint32_t salary)
 
 void deleteRecord(char *name)
 {
+    printf("DELETE, %s\n", name);
     uint32_t hashValue = jenkins_one_at_a_time_hash(name, strlen(name));
 
     rwlock_acquire_writelock(&lock);
@@ -146,6 +148,7 @@ void deleteRecord(char *name)
 
 void searchRecord(char *name)
 {
+    printf("SEARCH, %s\n", name);
     uint32_t hashValue = jenkins_one_at_a_time_hash(name, strlen(name));
 
     rwlock_acquire_readlock(&lock);
@@ -158,7 +161,7 @@ void searchRecord(char *name)
     {
         if (curr->hash == hashValue)
         {
-            printf("%d, %s, %d\n", curr->hash, curr->name, curr->salary);
+            fprintf(fp, "%d, %s, %d\n", curr->hash, curr->name, curr->salary);
             break;
         }
 
@@ -180,6 +183,7 @@ void printRecords()
 
     while (curr != NULL)
     {
+        printf("%d, %s, %d\n", curr->hash, curr->name, curr->salary);
         fprintf(fp, "%d, %s, %d\n", curr->hash, curr->name, curr->salary);
         curr = curr->next;
     }
@@ -209,17 +213,14 @@ void *processCommands(void *args)
 
     if (strcmp(token, "insert") == 0)
     {
-        printf("INSERT, %s, %d\n", name, salary);
         insertRecord(name, (uint32_t)salary);
     }
     else if (strcmp(token, "delete") == 0)
     {
-        printf("DELETE, %s\n", name);
         deleteRecord(name);
     }
     else if (strcmp(token, "search") == 0)
     {
-        printf("SEARCH, %s\n", name);
         searchRecord(name);
     }
     else if (strcmp(token, "print") == 0)
@@ -261,6 +262,7 @@ void readCommandsFromFile()
             token = strtok(NULL, ",");
             numThreads = atoi(token);
             threads = malloc(numThreads * sizeof(pthread_t));
+            printf("Running %d threads\n", numThreads);
         }
         else
         {
@@ -268,13 +270,9 @@ void readCommandsFromFile()
             strcpy(args->command, token);
             strcpy(args->name, strtok(NULL, ","));
             args->salary = atoi(strtok(NULL, ","));
-            Pthread_create(&threads[i++], NULL, processCommands, args);
+            Pthread_create(&threads[i], NULL, processCommands, args);
+            Pthread_join(threads[i++], NULL)
         }
-    }
-
-    for (int i = 0; i < numThreads; i++)
-    {
-        Pthread_join(threads[i], NULL);
     }
 
     printf("\nNumber of acquisitions: %d\n", numAcquisitions);
