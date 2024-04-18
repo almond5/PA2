@@ -49,9 +49,9 @@ uint32_t jenkins_one_at_a_time_hash(const uint8_t *key, size_t length)
 void insertRecord(char *name, uint32_t salary)
 {
     uint32_t hashValue = jenkins_one_at_a_time_hash((const uint8_t *)name, strlen(name));
-    fprintf(ofp, "\nINSERT,%u,%s,%u", hashValue, name, salary);
+    fprintf(ofp, "INSERT,%u,%s,%u\n", hashValue, name, salary);
     rwlock_acquire_writelock(&lock);
-    fprintf(ofp, "\nWRITE LOCK ACQUIRED");
+    fprintf(ofp, "WRITE LOCK ACQUIRED\n");
     numAcquisitions++;
 
     if (hashTableSize == 0)
@@ -74,7 +74,7 @@ void insertRecord(char *name, uint32_t salary)
                 curr->salary = salary;
                 strcpy(curr->name, name);
                 rwlock_release_writelock(&lock);
-                fprintf(ofp, "\nWRITE LOCK RELEASED");
+                fprintf(ofp, "WRITE LOCK RELEASED\n");
                 numReleases++;
                 return;
             }
@@ -92,17 +92,17 @@ void insertRecord(char *name, uint32_t salary)
     }
 
     rwlock_release_writelock(&lock);
-    fprintf(ofp,"\nWRITE LOCK RELEASED");
+    fprintf(ofp,"WRITE LOCK RELEASED\n");
     numReleases++;
 }
 
 void deleteRecord(char *name)
 {
-    fprintf(ofp, "\nDELETE,%s", name);
+    fprintf(ofp, "DELETE,%s\n", name);
     uint32_t hashValue = jenkins_one_at_a_time_hash(name, strlen(name));
 
     rwlock_acquire_writelock(&lock);
-    fprintf(ofp, "\nWRITE LOCK ACQUIRED");
+    fprintf(ofp, "WRITE LOCK ACQUIRED\n");
     numAcquisitions++;
 
     hashRecord *curr = hashTable;
@@ -110,7 +110,7 @@ void deleteRecord(char *name)
     if (curr == NULL)
     {
         rwlock_release_writelock(&lock);
-        fprintf(ofp, "\nWRITE LOCK RELEASED");
+        fprintf(ofp, "WRITE LOCK RELEASED\n");
         numReleases++;
         return;
     }
@@ -121,7 +121,7 @@ void deleteRecord(char *name)
         free(curr);
         hashTableSize--;
         rwlock_release_writelock(&lock);
-        fprintf(ofp, "\nWRITE LOCK RELEASED");
+        fprintf(ofp, "WRITE LOCK RELEASED\n");
         numReleases++;
         return;
     }
@@ -141,17 +141,17 @@ void deleteRecord(char *name)
     }
 
     rwlock_release_writelock(&lock);
-    fprintf(ofp, "\nWRITE LOCK RELEASED");
+    fprintf(ofp, "WRITE LOCK RELEASED\n");
     numReleases++;
 }
 
 hashRecord* searchRecord(char *name)
 {
-    fprintf(ofp, "\nSEARCH,%s", name);
+    fprintf(ofp, "SEARCH,%s\n", name);
     uint32_t hashValue = jenkins_one_at_a_time_hash(name, strlen(name));
 
     rwlock_acquire_readlock(&lock);
-    fprintf(ofp, "\nREAD LOCK ACQUIRED");
+    fprintf(ofp, "READ LOCK ACQUIRED\n");
     numAcquisitions++;
 
     hashRecord *curr = hashTable;
@@ -161,7 +161,7 @@ hashRecord* searchRecord(char *name)
         if (curr->hash == hashValue)
         {
             rwlock_release_readlock(&lock);
-            fprintf(ofp, "\nREAD LOCK RELEASED");
+            fprintf(ofp, "READ LOCK RELEASED\n");
             numReleases++;
             return curr;
         }
@@ -170,7 +170,7 @@ hashRecord* searchRecord(char *name)
     }
 
     rwlock_release_readlock(&lock);
-    fprintf(ofp, "\nREAD LOCK RELEASED");
+    fprintf(ofp, "READ LOCK RELEASED\n");
     numReleases++;
     return NULL;
 }
@@ -178,19 +178,19 @@ hashRecord* searchRecord(char *name)
 void printRecords()
 {
     rwlock_acquire_readlock(&lock);
-    fprintf(ofp, "\nREAD LOCK ACQUIRED");
+    fprintf(ofp, "READ LOCK ACQUIRED\n");
     numAcquisitions++;
 
     hashRecord *curr = hashTable;
 
     while (curr != NULL)
     {
-        fprintf(ofp, "\n%u,%s,%u", curr->hash, curr->name, curr->salary);
+        fprintf(ofp, "%u,%s,%u\n", curr->hash, curr->name, curr->salary);
         curr = curr->next;
     }
 
     rwlock_release_readlock(&lock);
-    fprintf(ofp, "\nREAD LOCK RELEASED");
+    fprintf(ofp, "READ LOCK RELEASED\n");
     numReleases++;
 }
 
@@ -213,9 +213,9 @@ void *processCommands(void *args)
     {
         hashRecord* curr = searchRecord(name);
         if (curr == NULL)
-            fprintf(ofp, "\nNo Record Found");
+            fprintf(ofp, "No Record Found\n");
         else
-            fprintf(ofp, "\n%u,%s,%u", curr->hash, curr->name, curr->salary);
+            fprintf(ofp, "%u,%s,%u\n", curr->hash, curr->name, curr->salary);
     }
     else if (strcmp(token, "print") == 0)
     {
@@ -288,7 +288,7 @@ void readCommandsFromFile()
             token = strtok(NULL, ",");
             numThreads = atoi(token);
             threads = malloc(numThreads * sizeof(pthread_t));
-            fprintf(ofp, "Running %d threads", numThreads);
+            fprintf(ofp, "Running %d threads\n", numThreads);
         }
         else
         {
@@ -301,8 +301,8 @@ void readCommandsFromFile()
         }
     }
 
-    fprintf(ofp, "\nNumber of acquisitions: %d", numAcquisitions);
-    fprintf(ofp, "\nNumber of releases: %d", numReleases);
+    fprintf(ofp, "Number of acquisitions: %d\n", numAcquisitions);
+    fprintf(ofp, "Number of releases: %d\n", numReleases);
     sortRecords();
     printRecords();
 
