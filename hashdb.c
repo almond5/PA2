@@ -49,7 +49,7 @@ uint32_t jenkins_one_at_a_time_hash(const uint8_t *key, size_t length)
 void insertRecord(char *name, uint32_t salary)
 {
     uint32_t hashValue = jenkins_one_at_a_time_hash((const uint8_t *)name, strlen(name));
-    fprintf(ofp, "\nINSERT,%s,%u,%u", name, salary, hashValue);
+    fprintf(ofp, "\nINSERT,%u,%s,%u", hashValue, name, salary);
     rwlock_acquire_writelock(&lock);
     fprintf(ofp, "\nWRITE LOCK ACQUIRED");
     numAcquisitions++;
