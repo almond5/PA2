@@ -225,6 +225,41 @@ void *processCommands(void *args)
     return NULL;
 }
 
+void sortRecords()
+{
+    hashRecord *curr = hashTable;
+    hashRecord *temp = NULL;
+    uint32_t tempHash;
+    uint32_t tempSalary;
+    char tempName[50];
+
+    while (curr != NULL)
+    {
+        temp = curr->next;
+
+        while (temp != NULL)
+        {
+            if (curr->hash > temp->hash)
+            {
+                tempHash = curr->hash;
+                strcpy(tempName, curr->name);
+                tempSalary = curr->salary;
+
+                curr->hash = temp->hash;
+                strcpy(curr->name, temp->name);
+                curr->salary = temp->salary;
+
+                temp->hash = tempHash;
+                strcpy(temp->name, tempName);
+                temp->salary = tempSalary;
+            }
+
+            temp = temp->next;
+        }
+        curr = curr->next;
+    }
+}
+
 void readCommandsFromFile()
 {
     rwlock_init(&lock);
@@ -268,6 +303,7 @@ void readCommandsFromFile()
 
     fprintf(ofp, "\nNumber of acquisitions: %d", numAcquisitions);
     fprintf(ofp, "\nNumber of releases: %d", numReleases);
+    sortRecords();
     printRecords();
 
     fclose(ifp);
