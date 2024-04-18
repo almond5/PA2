@@ -4,13 +4,10 @@
 #include "common.h"
 #include "common_threads.h"
 
-// Function prototypes from hashdb.c
 extern void readCommandsFromFile(char *filename);
 
-// Main function
-int main() {
-    // Read commands from file
+int main()
+{
     readCommandsFromFile("commands.txt");
-
     return 0;
 }
