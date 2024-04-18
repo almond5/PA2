@@ -48,8 +48,8 @@ uint32_t jenkins_one_at_a_time_hash(const uint8_t *key, size_t length)
 
 void insertRecord(char *name, uint32_t salary)
 {
-    fprintf(ofp, "\nINSERT, %s, %u", name, salary);
     uint32_t hashValue = jenkins_one_at_a_time_hash((const uint8_t *)name, strlen(name));
+    fprintf(ofp, "\nINSERT,%s,%u,%u", name, salary, hashValue);
     rwlock_acquire_writelock(&lock);
     fprintf(ofp, "\nWRITE LOCK ACQUIRED");
     numAcquisitions++;
@@ -98,7 +98,7 @@ void insertRecord(char *name, uint32_t salary)
 
 void deleteRecord(char *name)
 {
-    fprintf(ofp, "\nDELETE, %s", name);
+    fprintf(ofp, "\nDELETE,%s", name);
     uint32_t hashValue = jenkins_one_at_a_time_hash(name, strlen(name));
 
     rwlock_acquire_writelock(&lock);
@@ -147,7 +147,7 @@ void deleteRecord(char *name)
 
 hashRecord* searchRecord(char *name)
 {
-    fprintf(ofp, "\nSEARCH, %s", name);
+    fprintf(ofp, "\nSEARCH,%s", name);
     uint32_t hashValue = jenkins_one_at_a_time_hash(name, strlen(name));
 
     rwlock_acquire_readlock(&lock);
