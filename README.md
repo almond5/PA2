@@ -1,2 +1,2 @@
-- Step 1: Run make
-- Step 2: Run ./chash
+- Step 1: Run `make`
+- Step 2: Run `./chash`
